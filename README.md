@@ -178,6 +178,30 @@ const scrapeResult = await scraper.scrape({ username: 'vr29485', password: 'some
 await browser.close();
 ```
 
+### launchBrowser (Cloudflare Workers)
+
+Use `launchBrowser` when running in non-Node environments such as Cloudflare Workers.  
+It lets you inject a custom browser launcher (for example `@cloudflare/puppeteer`) while keeping the rest of the scraper flow unchanged.
+
+Example:
+
+```typescript
+import puppeteer from '@cloudflare/puppeteer';
+import { CompanyTypes, createScraper } from 'israeli-bank-scrapers';
+
+export default {
+  async fetch(_request: Request, env: Env) {
+    const scraper = createScraper({
+      companyId: CompanyTypes.leumi,
+      startDate: new Date('2020-05-01'),
+      launchBrowser: () => puppeteer.launch(env.MY_BROWSER),
+    });
+
+    return Response.json(await scraper.scrape({ username: 'user', password: 'pass' }));
+  },
+};
+```
+
 ### OptIn Features
 
 Some scrapers support opt-in features that can be enabled by passing the `optInFeatures` option when creating the scraper.
