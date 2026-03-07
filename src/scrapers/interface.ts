@@ -59,7 +59,7 @@ interface ExternalBrowserContextOptions {
 
 interface DefaultBrowserOptions {
   /**
-   * custom browser launcher for non-node environments (e.g. Cloudflare Workers with @cloudflare/puppeteer)
+   * Custom browser launcher for non-node environments (e.g. Cloudflare Workers with @cloudflare/puppeteer).
    */
   launchBrowser?: () => Promise<Browser>;
 

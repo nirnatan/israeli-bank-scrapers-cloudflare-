@@ -161,10 +161,10 @@ class BaseScraperWithBrowser<TCredentials extends ScraperCredentials> extends Ba
       return browser.newPage();
     }
 
-    const launchedBrowser = this.options.launchBrowser;
-    if (launchedBrowser) {
+    const browserLauncher = this.options.launchBrowser;
+    if (browserLauncher) {
       debug('Using custom browser launcher provided in options');
-      const browser = await launchedBrowser();
+      const browser = await browserLauncher();
 
       this.cleanups.push(async () => {
         debug('closing the browser');
@@ -184,7 +184,7 @@ class BaseScraperWithBrowser<TCredentials extends ScraperCredentials> extends Ba
 
     const headless = !showBrowser;
     debug(`launch a browser with headless mode = ${headless}`);
-    const shouldSetDebugEnv = this.options.verbose && typeof process !== 'undefined' && !!process.env;
+    const shouldSetDebugEnv = this.options.verbose && typeof process !== 'undefined';
 
     const browser = await puppeteer.launch({
       env: shouldSetDebugEnv ? { DEBUG: '*', ...process.env } : undefined,
