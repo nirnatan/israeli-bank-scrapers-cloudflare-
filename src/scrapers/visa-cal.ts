@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { type HTTPRequest, type Frame, type Page } from 'puppeteer';
+import { type HTTPRequest, type Frame, type Page } from '@cloudflare/puppeteer';
 import { getDebug } from '../helpers/debug';
 import { clickButton, elementPresentOnPage, pageEval, waitUntilElementFound } from '../helpers/elements-interactions';
 import { fetchPost } from '../helpers/fetch';

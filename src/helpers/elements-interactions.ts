@@ -1,4 +1,4 @@
-import { type Frame, type Page } from 'puppeteer';
+import { type Frame, type Page } from '@cloudflare/puppeteer';
 import { waitUntil } from './waiting';
 
 async function waitUntilElementFound(

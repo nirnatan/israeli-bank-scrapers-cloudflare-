@@ -1,4 +1,4 @@
-import { type Frame, type Page, type WaitForOptions } from 'puppeteer';
+import { type Frame, type Page, type WaitForOptions } from '@cloudflare/puppeteer';
 import { waitUntil } from './waiting';
 
 export async function waitForNavigation(pageOrFrame: Page | Frame, options?: WaitForOptions) {

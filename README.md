@@ -42,19 +42,23 @@ To use these scrapers you'll need to install the package from npm:
 ```sh
 npm install israeli-bank-scrapers --save
 ```
-Then you can simply import and use it in your node module:
+Then you can simply import and use it:
 
 ```node
 import { CompanyTypes, createScraper } from 'israeli-bank-scrapers';
+import puppeteer from '@cloudflare/puppeteer';
 
 (async function() {
   try {
+    // Assume env is provided by Cloudflare runtime handlers.
+    // MY_BROWSER is a Cloudflare Browser binding configured in wrangler.toml.
     // read documentation below for available options
     const options = {
       companyId: CompanyTypes.leumi, 
       startDate: new Date('2020-05-01'),
       combineInstallments: false,
-      showBrowser: true 
+      // MY_BROWSER is a Cloudflare Browser binding configured in wrangler.toml
+      launchBrowser: () => puppeteer.launch(env.MY_BROWSER)
     };
 
     // read documentation below for information about credentials
@@ -135,16 +139,17 @@ The return value is a list of scraper metadata:
 
 ### ExternalBrowserOptions
 
-This option allows you to provide an externally created browser instance. You can get a browser directly from puppeteer via `puppeteer.launch()`.  
+This option allows you to provide an externally created browser instance. You can get a browser directly from `@cloudflare/puppeteer` via `puppeteer.launch(env.MY_BROWSER)`.  
 Note that for backwards compatibility, the browser will be closed by the library after the scraper finishes unless `skipCloseBrowser` is set to true.
 
 Example:
 
 ```typescript
-import puppeteer from 'puppeteer';
+import puppeteer from '@cloudflare/puppeteer';
 import { CompanyTypes, createScraper } from 'israeli-bank-scrapers';
 
-const browser = await puppeteer.launch();
+// Assume env is provided by Cloudflare runtime handlers.
+const browser = await puppeteer.launch(env.MY_BROWSER);
 const options = {
   companyId: CompanyTypes.leumi,
   startDate: new Date('2020-05-01'),
@@ -163,10 +168,11 @@ This option allows you to provide a [browser context](https://pptr.dev/api/puppe
 Example:
 
 ```typescript
-import puppeteer from 'puppeteer';
+import puppeteer from '@cloudflare/puppeteer';
 import { CompanyTypes, createScraper } from 'israeli-bank-scrapers';
 
-const browser = await puppeteer.launch();
+// Assume env is provided by Cloudflare runtime handlers.
+const browser = await puppeteer.launch(env.MY_BROWSER);
 const browserContext = await browser.createBrowserContext();
 const options = {
   companyId: CompanyTypes.leumi,
@@ -176,6 +182,30 @@ const options = {
 const scraper = createScraper(options);
 const scrapeResult = await scraper.scrape({ username: 'vr29485', password: 'sometingsomething' });
 await browser.close();
+```
+
+### launchBrowser (Cloudflare Workers)
+
+Use `launchBrowser` when running in non-Node environments such as Cloudflare Workers.  
+It lets you inject a custom browser launcher (for example `@cloudflare/puppeteer`) while keeping the rest of the scraper flow unchanged.
+
+Example:
+
+```typescript
+import puppeteer from '@cloudflare/puppeteer';
+import { CompanyTypes, createScraper } from 'israeli-bank-scrapers';
+
+export default {
+  async fetch(_request: Request, env: Env) {
+    const scraper = createScraper({
+      companyId: CompanyTypes.leumi,
+      startDate: new Date('2020-05-01'),
+      launchBrowser: () => puppeteer.launch(env.MY_BROWSER),
+    });
+
+    return Response.json(await scraper.scrape({ username: 'user', password: 'pass' }));
+  },
+};
 ```
 
 ### OptIn Features
@@ -230,44 +260,14 @@ result = {
 # Getting deployed version of latest changes in master
 This library is deployed automatically to NPM with any change merged into the master branch. 
 
-# `Israeli-bank-scrapers-core` library
+# Cloudflare runtime notes
 
-> TL;DR this is the same library as the default library. The only difference is that it is using `puppeteer-core` instead of `puppeteer` which is useful if you are using frameworks like Electron to pack your application. 
->
-> In most cases you will probably want to use the default library (read [Getting Started](#getting-started) section).
+This package is configured for Cloudflare Puppeteer integration.
+Use one of the following browser initialization options when creating a scraper:
 
-Israeli bank scrapers library is published  twice:
- 1. [israeli-bank-scrapers](https://www.npmjs.com/package/israeli-bank-scrapers) - the default variation, great for common usage as node dependency in server application or cli.
- 2. [israeli-bank-scrapers-core](https://www.npmjs.com/package/israeli-bank-scrapers-core) - extremely useful for applications that bundle `node_modules` like Electron applications. 
- 
- ## Differences between default and core variations
-  
- The default variation [israeli-bank-scrapers](https://www.npmjs.com/package/israeli-bank-scrapers) is using [puppeteer](https://www.npmjs.com/package/puppeteer) which handles the installation of local chroumium on its' own. This behavior is very handy since it takes care on all the hard work figuring which chromium to download and manage the actual download process.  As a side effect it increases node_modules by several hundred megabytes. 
- 
- The core variation [israeli-bank-scrapers-core](https://www.npmjs.com/package/israeli-bank-scrapers-core) is using [puppeteer-core](https://www.npmjs.com/package/puppeteer-core) which is exactly the same library as `puppeteer` except that it doesn't download chromium when installed by npm. It is up to you to make sure the specific version of chromium is installed locally and provide a path to that version. It is useful in Electron applications since it doesn't bloat the size of the application and you can provide a much friendlier experience like loading the application and download it later when needed. 
- 
- To install `israeli-bank-scrapers-core`:
-```sh
-npm install israeli-bank-scrapers-core --save
-```
-
-## Getting chromium version used by puppeteer-core
-When using the `israeli-bank-scrapers-core` it is up to you to make sure the relevant chromium version exists. You must:
-1. query for the specific chromium revision required by the `puppeteer-core` library being used.
-2. make sure that you have local version of that revision.
-3. provide an absolute path to `israeli-bank-scrapers-core` scrapers.
-
-Please read the following to learn more about the process: 
-1. To get the required chromium revision use the following code:
-```
-import { getPuppeteerConfig } from 'israeli-bank-scrapers-core';
-
-const chromiumVersion = getPuppeteerConfig().chromiumRevision;
-```
-
-2. Once you have the chromium revision, you can either download it manually or use other liraries like [download-chromium](https://www.npmjs.com/package/download-chromium) to fetch that version. The mentioned library is very handy as it caches the download and provide useful helpers like download progress information.
- 
- 3. provide the path to chromium to the library using the option key `executablePath`. 
+1. `launchBrowser` - recommended for Workers, usually via `@cloudflare/puppeteer`.
+2. `browser` - if you already launched a browser externally.
+3. `browserContext` - if you already manage context lifecycle externally.
 
 # Specific definitions per scraper
 

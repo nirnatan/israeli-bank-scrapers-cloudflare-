@@ -1,4 +1,4 @@
-import puppeteer, { type Frame, type Page, type PuppeteerLifeCycleEvent } from 'puppeteer';
+import { type Frame, type Page } from '@cloudflare/puppeteer';
 import { ScraperProgressTypes } from '../definitions';
 import { getDebug } from '../helpers/debug';
 import { clickButton, fillInput, waitUntilElementFound } from '../helpers/elements-interactions';
@@ -38,8 +38,10 @@ export interface LoginOptions {
   postAction?: () => Promise<void>;
   possibleResults: PossibleLoginResults;
   userAgent?: string;
-  waitUntil?: PuppeteerLifeCycleEvent;
+  waitUntil?: NavigationWaitUntil;
 }
+
+type NavigationWaitUntil = NonNullable<Parameters<Page['goto']>[1]>['waitUntil'];
 
 async function getKeyByValue(object: PossibleLoginResults, value: string, page: Page): Promise<LoginResults> {
   const keys = Object.keys(object);
@@ -161,36 +163,31 @@ class BaseScraperWithBrowser<TCredentials extends ScraperCredentials> extends Ba
       return browser.newPage();
     }
 
-    const { timeout, args, executablePath, showBrowser } = this.options;
+    const browserLauncher = this.options.launchBrowser;
+    if (browserLauncher) {
+      debug('Using custom browser launcher provided in options');
+      const browser = await browserLauncher();
 
-    const headless = !showBrowser;
-    debug(`launch a browser with headless mode = ${headless}`);
+      this.cleanups.push(async () => {
+        debug('closing the browser');
+        await browser.close();
+      });
 
-    const browser = await puppeteer.launch({
-      env: this.options.verbose ? { DEBUG: '*', ...process.env } : undefined,
-      headless,
-      executablePath,
-      args,
-      timeout,
-    });
+      if (this.options.prepareBrowser) {
+        debug("execute 'prepareBrowser' interceptor provided in options");
+        await this.options.prepareBrowser(browser);
+      }
 
-    this.cleanups.push(async () => {
-      debug('closing the browser');
-      await browser.close();
-    });
-
-    if (this.options.prepareBrowser) {
-      debug("execute 'prepareBrowser' interceptor provided in options");
-      await this.options.prepareBrowser(browser);
+      debug('create a new browser page');
+      return browser.newPage();
     }
 
-    debug('create a new browser page');
-    return browser.newPage();
+    throw new Error('Missing browser initialization option: provide browserContext, browser, or launchBrowser');
   }
 
   async navigateTo(
     url: string,
-    waitUntil: PuppeteerLifeCycleEvent | undefined = 'load',
+    waitUntil: NavigationWaitUntil = 'load',
     retries = this.options.navigationRetryCount ?? 0,
   ): Promise<void> {
     const response = await this.page?.goto(url, { waitUntil });

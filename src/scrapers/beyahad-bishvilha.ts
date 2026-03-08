@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { type Page } from 'puppeteer';
+import { type Page } from '@cloudflare/puppeteer';
 import {
   DOLLAR_CURRENCY,
   DOLLAR_CURRENCY_SYMBOL,
