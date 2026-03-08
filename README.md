@@ -50,11 +50,13 @@ import puppeteer from '@cloudflare/puppeteer';
 
 (async function() {
   try {
+    // In Cloudflare runtime handlers, env is provided by the platform.
     // read documentation below for available options
     const options = {
       companyId: CompanyTypes.leumi, 
       startDate: new Date('2020-05-01'),
       combineInstallments: false,
+      // MY_BROWSER is a Cloudflare Browser binding configured in wrangler.toml
       launchBrowser: () => puppeteer.launch(env.MY_BROWSER)
     };
 
@@ -146,6 +148,7 @@ import puppeteer from '@cloudflare/puppeteer';
 import { CompanyTypes, createScraper } from 'israeli-bank-scrapers';
 
 const browser = await puppeteer.launch(env.MY_BROWSER);
+// MY_BROWSER is a Cloudflare Browser binding configured in wrangler.toml
 const options = {
   companyId: CompanyTypes.leumi,
   startDate: new Date('2020-05-01'),
@@ -168,6 +171,7 @@ import puppeteer from '@cloudflare/puppeteer';
 import { CompanyTypes, createScraper } from 'israeli-bank-scrapers';
 
 const browser = await puppeteer.launch(env.MY_BROWSER);
+// MY_BROWSER is a Cloudflare Browser binding configured in wrangler.toml
 const browserContext = await browser.createBrowserContext();
 const options = {
   companyId: CompanyTypes.leumi,

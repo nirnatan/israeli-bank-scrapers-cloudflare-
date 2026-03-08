@@ -1,5 +1,6 @@
 import { extendAsyncTimeout } from '../tests/tests-utils';
 import { CompanyTypes } from '../definitions';
+import { type ScraperOptions } from './interface';
 import { BaseScraperWithBrowser } from './base-scraper-with-browser';
 
 describe('Base scraper with browser', () => {
@@ -8,10 +9,11 @@ describe('Base scraper with browser', () => {
   });
 
   test('should fail initialization when browser launcher is missing', async () => {
-    const scraper = new BaseScraperWithBrowser({
+    const invalidOptions = {
       companyId: CompanyTypes.leumi,
       startDate: new Date('2020-05-01'),
-    } as any);
+    } as unknown as ScraperOptions;
+    const scraper = new BaseScraperWithBrowser(invalidOptions);
 
     await expect(scraper.initialize()).rejects.toThrow(
       'Missing browser initialization option: provide browserContext, browser, or launchBrowser',
