@@ -38,8 +38,10 @@ export interface LoginOptions {
   postAction?: () => Promise<void>;
   possibleResults: PossibleLoginResults;
   userAgent?: string;
-  waitUntil?: NonNullable<Parameters<Page['goto']>[1]>['waitUntil'];
+  waitUntil?: NavigationWaitUntil;
 }
+
+type NavigationWaitUntil = NonNullable<Parameters<Page['goto']>[1]>['waitUntil'];
 
 async function getKeyByValue(object: PossibleLoginResults, value: string, page: Page): Promise<LoginResults> {
   const keys = Object.keys(object);
@@ -185,7 +187,7 @@ class BaseScraperWithBrowser<TCredentials extends ScraperCredentials> extends Ba
 
   async navigateTo(
     url: string,
-    waitUntil: NonNullable<Parameters<Page['goto']>[1]>['waitUntil'] = 'load',
+    waitUntil: NavigationWaitUntil = 'load',
     retries = this.options.navigationRetryCount ?? 0,
   ): Promise<void> {
     const response = await this.page?.goto(url, { waitUntil });
