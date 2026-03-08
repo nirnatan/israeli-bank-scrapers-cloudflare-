@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { type Page } from 'puppeteer';
+import { type Page } from '@cloudflare/puppeteer';
 import { v4 as uuid4 } from 'uuid';
 import { getDebug } from '../helpers/debug';
 import { fetchGetWithinPage, fetchPostWithinPage } from '../helpers/fetch';

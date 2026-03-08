@@ -1,4 +1,4 @@
-import { type Page } from 'puppeteer';
+import { type Page } from '@cloudflare/puppeteer';
 
 export async function maskHeadlessUserAgent(page: Page): Promise<void> {
   const userAgent = await page.evaluate(() => navigator.userAgent);

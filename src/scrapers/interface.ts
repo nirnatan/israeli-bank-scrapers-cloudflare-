@@ -1,4 +1,4 @@
-import { type BrowserContext, type Browser, type Page } from 'puppeteer';
+import { type BrowserContext, type Browser, type Page } from '@cloudflare/puppeteer';
 import { type CompanyTypes, type ScraperProgressTypes } from '../definitions';
 import { type TransactionsAccount } from '../transactions';
 import { type ErrorResult, type ScraperErrorTypes } from './errors';
@@ -59,34 +59,9 @@ interface ExternalBrowserContextOptions {
 
 interface DefaultBrowserOptions {
   /**
-   * Custom browser launcher for non-node environments (e.g. Cloudflare Workers with @cloudflare/puppeteer).
+   * Custom browser launcher for Cloudflare Workers using @cloudflare/puppeteer.
    */
   launchBrowser?: () => Promise<Browser>;
-
-  /**
-   * shows the browser while scraping, good for debugging (default false)
-   */
-  showBrowser?: boolean;
-
-  /**
-   * provide a patch to local chromium to be used by puppeteer. Relevant when using
-   * `israeli-bank-scrapers-core` library
-   */
-  executablePath?: string;
-
-  /**
-   * additional arguments to pass to the browser instance. The list of flags can be found in
-   *
-   * https://developer.mozilla.org/en-US/docs/Mozilla/Command_Line_Options
-   * https://peter.sh/experiments/chromium-command-line-switches/
-   */
-  args?: string[];
-
-  /**
-   * Maximum navigation time in milliseconds, pass 0 to disable timeout.
-   * @default 30000
-   */
-  timeout?: number;
 
   /**
    * adjust the browser instance before it is being used

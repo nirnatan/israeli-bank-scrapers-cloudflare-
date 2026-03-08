@@ -1,5 +1,5 @@
 import moment, { type Moment } from 'moment';
-import { type Frame, type Page } from 'puppeteer';
+import { type Frame, type Page } from '@cloudflare/puppeteer';
 import { SHEKEL_CURRENCY, SHEKEL_CURRENCY_SYMBOL } from '../constants';
 import {
   clickButton,

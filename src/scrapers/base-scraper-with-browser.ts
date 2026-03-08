@@ -1,4 +1,4 @@
-import puppeteer, { type Frame, type Page, type PuppeteerLifeCycleEvent } from 'puppeteer';
+import { type Frame, type Page } from '@cloudflare/puppeteer';
 import { ScraperProgressTypes } from '../definitions';
 import { getDebug } from '../helpers/debug';
 import { clickButton, fillInput, waitUntilElementFound } from '../helpers/elements-interactions';
@@ -38,7 +38,7 @@ export interface LoginOptions {
   postAction?: () => Promise<void>;
   possibleResults: PossibleLoginResults;
   userAgent?: string;
-  waitUntil?: PuppeteerLifeCycleEvent;
+  waitUntil?: NonNullable<Parameters<Page['goto']>[1]>['waitUntil'];
 }
 
 async function getKeyByValue(object: PossibleLoginResults, value: string, page: Page): Promise<LoginResults> {
@@ -180,37 +180,12 @@ class BaseScraperWithBrowser<TCredentials extends ScraperCredentials> extends Ba
       return browser.newPage();
     }
 
-    const { timeout, args, executablePath, showBrowser } = this.options;
-
-    const headless = !showBrowser;
-    debug(`launch a browser with headless mode = ${headless}`);
-    const shouldSetDebugEnv = this.options.verbose && typeof process !== 'undefined';
-
-    const browser = await puppeteer.launch({
-      env: shouldSetDebugEnv ? { DEBUG: '*', ...process.env } : undefined,
-      headless,
-      executablePath,
-      args,
-      timeout,
-    });
-
-    this.cleanups.push(async () => {
-      debug('closing the browser');
-      await browser.close();
-    });
-
-    if (this.options.prepareBrowser) {
-      debug("execute 'prepareBrowser' interceptor provided in options");
-      await this.options.prepareBrowser(browser);
-    }
-
-    debug('create a new browser page');
-    return browser.newPage();
+    throw new Error('Missing browser initialization option: provide browserContext, browser, or launchBrowser');
   }
 
   async navigateTo(
     url: string,
-    waitUntil: PuppeteerLifeCycleEvent | undefined = 'load',
+    waitUntil: NonNullable<Parameters<Page['goto']>[1]>['waitUntil'] = 'load',
     retries = this.options.navigationRetryCount ?? 0,
   ): Promise<void> {
     const response = await this.page?.goto(url, { waitUntil });

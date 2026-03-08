@@ -54,7 +54,6 @@
     "@types/debug": "^4.1.7",
     "@types/jest": "^29.5.12",
     "@types/lodash": "^4.14.149",
-    "@types/node-fetch": "^2.5.6",
     "@types/source-map-support": "^0.5.1",
     "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^7.12.0",
@@ -79,13 +78,12 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "@cloudflare/puppeteer": "^1.0.6",
     "core-js": "^3.1.4",
     "debug": "^4.3.2",
     "lodash": "^4.17.10",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.37",
-    "node-fetch": "^2.2.0",
-    "puppeteer": "22.15.0",
     "utility-types": "^3.11.0",
     "uuid": "^9.0.1"
   },

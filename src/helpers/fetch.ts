@@ -1,4 +1,4 @@
-import { type Page } from 'puppeteer';
+import { type Page } from '@cloudflare/puppeteer';
 
 const JSON_CONTENT_TYPE = 'application/json';
 
